@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: NVIDIA CORPORATION & AFFILIATES
-// Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright (c) 2021-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -508,6 +508,7 @@ struct VideoFormatSize<T, std::enable_if_t<T == VideoFormat::GXF_VIDEO_FORMAT_R8
       color_planes[i].stride = ComputeStrides(stride_align, color_planes[i].width,
                             color_planes[i].bytes_per_pixel, color_planes[i].stride);
       color_planes[i].size = color_planes[i].stride * color_planes[i].height;
+      color_planes[i].size = color_planes[i].stride * color_planes[i].height;
       color_planes[i].offset = size;
       size += color_planes[i].size;
     }
@@ -845,15 +846,12 @@ class VideoBuffer {
   // Moves the existing video buffer to a tensor element specified by the handle
   Expected<void> moveToTensor(Handle<Tensor>& tensor);
 
-  // Moves the existing video buffer to a tensor element specified by the pointer
-  Expected<void> moveToTensor(Tensor* tensor);
 
   // Moves memory buffer from tensor to video buffer works on rank 2 and 3 tensors,
   // ordering of dimensions in tensor is assumed to be [whc]
   // OBS: If successful, tensor destructor will be called and handle set to null
   template <VideoFormat C>
-  Expected<void> createFromTensor(Handle<Tensor>& tensor, SurfaceLayout layout,
-                                  bool stride_align = true);
+  Expected<void> createFromTensor(Handle<Tensor>& tensor, SurfaceLayout layout);
 
   // VideoBufferInfo of the video frame
   VideoBufferInfo video_frame_info() const { return buffer_info_; }
@@ -942,8 +940,7 @@ class VideoBuffer {
 
 template <VideoFormat C>
 Expected<void> VideoBuffer::createFromTensor(Handle<Tensor>& tensor,
-                                             SurfaceLayout layout,
-                                             bool stride_align) {
+                                             SurfaceLayout layout) {
   if (!tensor) {
     GXF_LOG_ERROR("createFromTensor received invalid tensor handle");
     return Unexpected{GXF_ARGUMENT_NULL};
@@ -979,7 +976,7 @@ Expected<void> VideoBuffer::createFromTensor(Handle<Tensor>& tensor,
   auto channels = static_cast<uint32_t>(tensor->shape().dimension(2));
 
   // Get color planes
-  auto color_planes = color_format.getDefaultColorPlanes(width, height, stride_align);
+  auto color_planes = color_format.getDefaultColorPlanes(width, height);
 
   // Sanity check that number of tensor channels corresponds to video format
   if (channels != color_planes.size()) {

@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: NVIDIA CORPORATION & AFFILIATES
-// Copyright (c) 2022-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright (c) 2022-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -109,12 +109,9 @@ public:
     const gxf_uid_t eid,
     std_msgs::msg::Header & ros_header);
 
-  // Set GXF log level for the context
+  // Setter for extension_log_severity_ (the extension log severity level)
+  // This has to be called once for this context before an extension is loaded to take effect
   void setExtensionLogSeverity(gxf_severity_t severity_level);
-
-  // Setter for the default CUDA memory pool size on device 0.
-  // Only take effect when the requested CUDA memory pool size is larger than the current
-  gxf_result_t setCUDAMemoryPoolSize(uint64_t cuda_mem_pool_size);
 
   // APIs for setting a parameter value in a given component
   gxf_result_t setParameterInt64(
@@ -122,21 +119,9 @@ public:
     const std::string & codelet_type,
     const std::string & parameter_name,
     const int64_t parameter_value);
-  gxf_result_t setParameterInt64(
-    const std::string & entity_name,
-    const std::string & codelet_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    const int64_t parameter_value);
 
   gxf_result_t setParameterUInt64(
     const std::string & entity_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    const uint64_t parameter_value);
-  gxf_result_t setParameterUInt64(
-    const std::string & entity_name,
-    const std::string & codelet_name,
     const std::string & codelet_type,
     const std::string & parameter_name,
     const uint64_t parameter_value);
@@ -146,21 +131,9 @@ public:
     const std::string & codelet_type,
     const std::string & parameter_name,
     const int32_t parameter_value);
-  gxf_result_t setParameterInt32(
-    const std::string & entity_name,
-    const std::string & codelet_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    const int32_t parameter_value);
 
   gxf_result_t setParameterUInt32(
     const std::string & entity_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    const uint32_t parameter_value);
-  gxf_result_t setParameterUInt32(
-    const std::string & entity_name,
-    const std::string & codelet_name,
     const std::string & codelet_type,
     const std::string & parameter_name,
     const uint32_t parameter_value);
@@ -170,21 +143,9 @@ public:
     const std::string & codelet_type,
     const std::string & parameter_name,
     const uint16_t parameter_value);
-  gxf_result_t setParameterUInt16(
-    const std::string & entity_name,
-    const std::string & codelet_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    const uint16_t parameter_value);
 
   gxf_result_t setParameterFloat32(
     const std::string & entity_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    const float parameter_value);
-  gxf_result_t setParameterFloat32(
-    const std::string & entity_name,
-    const std::string & codelet_name,
     const std::string & codelet_type,
     const std::string & parameter_name,
     const float parameter_value);
@@ -194,21 +155,9 @@ public:
     const std::string & codelet_type,
     const std::string & parameter_name,
     const double parameter_value);
-  gxf_result_t setParameterFloat64(
-    const std::string & entity_name,
-    const std::string & codelet_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    const double parameter_value);
 
   gxf_result_t setParameterStr(
     const std::string & entity_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    const std::string & parameter_value);
-  gxf_result_t setParameterStr(
-    const std::string & entity_name,
-    const std::string & codelet_name,
     const std::string & codelet_type,
     const std::string & parameter_name,
     const std::string & parameter_value);
@@ -218,21 +167,9 @@ public:
     const std::string & codelet_type,
     const std::string & parameter_name,
     const gxf_uid_t & uid);
-  gxf_result_t setParameterHandle(
-    const std::string & entity_name,
-    const std::string & codelet_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    const gxf_uid_t & uid);
 
   gxf_result_t setParameterBool(
     const std::string & entity_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    const bool parameter_value);
-  gxf_result_t setParameterBool(
-    const std::string & entity_name,
-    const std::string & codelet_name,
     const std::string & codelet_type,
     const std::string & parameter_name,
     const bool parameter_value);
@@ -242,21 +179,9 @@ public:
     const std::string & codelet_type,
     const std::string & parameter_name,
     const std::vector<std::string> & parameter_value);
-  gxf_result_t setParameter1DStrVector(
-    const std::string & entity_name,
-    const std::string & codelet_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    const std::vector<std::string> & parameter_value);
 
   gxf_result_t setParameter1DInt32Vector(
     const std::string & entity_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    std::vector<int32_t> & parameter_value);
-  gxf_result_t setParameter1DInt32Vector(
-    const std::string & entity_name,
-    const std::string & codelet_name,
     const std::string & codelet_type,
     const std::string & parameter_name,
     std::vector<int32_t> & parameter_value);
@@ -266,21 +191,9 @@ public:
     const std::string & codelet_type,
     const std::string & parameter_name,
     std::vector<int64_t> & parameter_value);
-  gxf_result_t setParameter1DInt64Vector(
-    const std::string & entity_name,
-    const std::string & codelet_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    std::vector<int64_t> & parameter_value);
 
   gxf_result_t setParameter1DFloat64Vector(
     const std::string & entity_name,
-    const std::string & codelet_type,
-    const std::string & parameter_name,
-    std::vector<double> & parameter_value);
-  gxf_result_t setParameter1DFloat64Vector(
-    const std::string & entity_name,
-    const std::string & codelet_name,
     const std::string & codelet_type,
     const std::string & parameter_name,
     std::vector<double> & parameter_value);
@@ -296,7 +209,6 @@ private:
   const rclcpp::Node * node_ = nullptr;
 
   // Shared context across all NitrosContext
-  static gxf_context_t main_context_;
   static gxf_context_t shared_context_;
   static std::mutex shared_context_mutex_;
 
@@ -313,7 +225,7 @@ private:
   std::vector<std::string> graph_param_override_string_list_;
 
   // Extension log severity level
-  static gxf_severity_t extension_log_severity_;
+  gxf_severity_t extension_log_severity_ = gxf_severity_t::GXF_SEVERITY_WARNING;
 };
 
 }  // namespace nitros

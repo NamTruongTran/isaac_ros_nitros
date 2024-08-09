@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: NVIDIA CORPORATION & AFFILIATES
-// Copyright (c) 2022-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright (c) 2022-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,8 +55,7 @@ public:
     rclcpp::Node * node,
     const std::string & topic,
     const std::string & format,
-    const NitrosStatisticsConfig & statistics_config = {},
-    const rclcpp::QoS qos = rclcpp::QoS(1))
+    const NitrosStatisticsConfig & statistics_config = {})
   : node_{node},
     context_{GetTypeAdapterNitrosContext()},
     nitros_type_manager_{std::make_shared<NitrosTypeManager>(node_)}
@@ -68,7 +67,7 @@ public:
 
     NitrosPublisherSubscriberConfig component_config{
       .type = nitros::NitrosPublisherSubscriberType::NEGOTIATED,
-      .qos = qos,
+      .qos = rclcpp::QoS(1),
       .compatible_data_format = format,
       .topic_name = topic
     };

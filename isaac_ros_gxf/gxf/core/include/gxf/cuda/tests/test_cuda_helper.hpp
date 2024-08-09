@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: NVIDIA CORPORATION & AFFILIATES
-// Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright (c) 2021-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ class StreamBasedOps : public Codelet {
   }
 
   Expected<Handle<CudaEvent>> addNewEvent(Entity& message, const char* name = nullptr) const {
-    GXF_ASSERT(opsEvent(), "cuda stream ops event is not initialized");
+    GXF_ASSERT(opsEvent(), "cuda steram ops event is not initialized");
 
     auto mabe_event = message.add<CudaEvent>(name);
     GXF_ASSERT(mabe_event, "failed to add cudaevent");
@@ -138,6 +138,7 @@ class StreamTensorGenerator : public StreamBasedOps {
     GXF_ASSERT(stream_->stream(), "allocated stream is not initialized.");
     return GXF_SUCCESS;
   }
+  gxf_result_t start() override { return GXF_SUCCESS; }
 
   gxf_result_t tick() override {
     Expected<Entity> maybe_dev_msg = Entity::New(context());
@@ -171,6 +172,8 @@ class StreamTensorGenerator : public StreamBasedOps {
 
     return GXF_SUCCESS;
   }
+
+  gxf_result_t stop() override { return GXF_SUCCESS; }
 
   gxf_result_t registerInterface(Registrar* registrar) override {
     Expected<void> result;
@@ -345,6 +348,7 @@ class CublasDotProduct : public StreamBasedOps {
   }
 
   gxf_result_t start() override { return ToResultCode(initOpsEvent()); }
+  gxf_result_t stop() override { return GXF_SUCCESS; }
 
   gxf_result_t tick() override {
     auto ret = exec_.execute("cublasdotproduct_tensor");
@@ -394,6 +398,9 @@ class HostDotProduct : public Codelet {
     return GXF_SUCCESS;
   }
 
+  gxf_result_t start() override { return GXF_SUCCESS; }
+  gxf_result_t stop() override { return GXF_SUCCESS; }
+
   gxf_result_t tick() override {
     auto ret = exec_.execute("host_dotproduct_tensor");
     return ToResultCode(ret);
@@ -419,6 +426,7 @@ class HostDotProduct : public Codelet {
 class MemCpy2Host : public StreamBasedOps {
  public:
   gxf_result_t start() override { return ToResultCode(initOpsEvent()); }
+  gxf_result_t stop() override { return GXF_SUCCESS; }
 
   gxf_result_t tick() override {
     auto in = rx_->receive();
@@ -484,6 +492,9 @@ class MemCpy2Host : public StreamBasedOps {
 // Equal verification
 class VerifyEqual : public Codelet {
  public:
+  gxf_result_t start() override { return GXF_SUCCESS; }
+  gxf_result_t stop() override { return GXF_SUCCESS; }
+
   gxf_result_t tick() override {
     GXF_LOG_DEBUG("verifying frame: %d", count_++);
     auto in0 = rx0_->receive();

@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: NVIDIA CORPORATION & AFFILIATES
-// Copyright (c) 2022-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright (c) 2022-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -132,16 +132,11 @@ NitrosPublisher::NitrosPublisher(
     return;
   }
 
-  // We don't consider the case of a node being removed after started
-  negotiated::NegotiatedPublisherOptions updated_negotiated_pub_options =
-    negotiated_pub_options;
-  updated_negotiated_pub_options.negotiate_on_subscription_removal = false;
-
   // Create a negotiated publisher object
   negotiated_pub_ = std::make_shared<negotiated::NegotiatedPublisher>(
     node_,
     compatible_pub_->get_topic_name() + std::string("/nitros"),
-    updated_negotiated_pub_options);
+    negotiated_pub_options);
 
   // Add supported data formats (which also adds the compatible publisher)
   double weight = 1.0;
@@ -183,10 +178,7 @@ NitrosPublisher::NitrosPublisher(
 {
   statistics_config_ = statistics_config;
 
-  if (statistics_config_.enable_statistics &&
-    statistics_config_.topic_name_expected_dt_map.find(config_.topic_name) !=
-    statistics_config_.topic_name_expected_dt_map.end())
-  {
+  if (statistics_config_.enable_statistics) {
     // Initialize statistics variables and message fields
     statistics_msg_.is_subscriber = false;
     initStatistics();
@@ -552,11 +544,8 @@ void NitrosPublisher::publish(NitrosTypeBase & base_msg)
       base_msg);
   }
 
-  if (statistics_config_.enable_statistics &&
-    statistics_config_.topic_name_expected_dt_map.find(config_.topic_name) !=
-    statistics_config_.topic_name_expected_dt_map.end())
-  {
-    updateStatistics(getTimestamp(base_msg));
+  if (statistics_config_.enable_statistics) {
+    updateStatistics();
   }
 
   nvtxRangePopWrapper();
